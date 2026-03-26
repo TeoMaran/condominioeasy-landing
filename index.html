@@ -5,17 +5,82 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>condominioeasy.it</title>
   <style>
-    html,body{height:100%;margin:0}
-    body{
-      display:flex;align-items:center;justify-content:center;flex-direction:column;
-      background:#0f172a;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden; /* Impedisce la comparsa di barre di scorrimento durante il rimbalzo */
     }
-    .logo{max-width:500px;width:60%;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.25))}
-    .footer{position:fixed;bottom:18px;font-size:12px;opacity:.75;letter-spacing:.3px}
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      background: #0f172a;
+      color: #fff;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu;
+    }
+    
+    /* Stile immagine centrale */
+    .logo-main {
+      max-width: 500px;
+      width: 60%;
+      height: auto;
+      filter: drop-shadow(0 6px 18px rgba(0,0,0,.25));
+      transition: transform 0.3s ease;
+    }
+    .logo-main:hover {
+      transform: scale(1.02);
+    }
+
+    /* Stile logo rimbalzante */
+    .bouncing-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 120px; /* Dimensione del logo che rimbalza */
+      height: auto;
+      z-index: 100;
+      cursor: pointer;
+      animation: bounceX 12s linear infinite alternate, 
+                 bounceY 7s linear infinite alternate;
+    }
+    .bouncing-container img {
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    }
+
+    /* Animazioni per il rimbalzo DVD style */
+    @keyframes bounceX {
+      from { left: 0; }
+      to { left: calc(100vw - 120px); }
+    }
+    @keyframes bounceY {
+      from { top: 0; }
+      to { top: calc(100vh - 60px); } /* Sottrai l'altezza approssimativa del logo */
+    }
+
+    .footer {
+      position: fixed;
+      bottom: 18px;
+      font-size: 12px;
+      opacity: .75;
+      letter-spacing: .3px;
+      z-index: 10;
+    }
   </style>
 </head>
 <body>
-  <img src="/Logo.png" alt="Logo" class="logo">
+
+  <a href="https://app.condominioeasy.it/login" class="bouncing-container">
+    <img src="/FullLogo_Transparent.png" alt="Software Login">
+  </a>
+
+  <a href="https://app.condominioeasy.it/login">
+    <img src="/Logo.png" alt="Logo" class="logo-main">
+  </a>
+
   <div class="footer">Developed by Matteo Marangotto</div>
+
 </body>
 </html>
