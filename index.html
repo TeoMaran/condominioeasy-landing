@@ -20,7 +20,25 @@
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu;
     }
     
-    body { display: flex; align-items: center; justify-content: center; flex-direction: column; }
+    body { 
+      display: flex; align-items: center; justify-content: center; flex-direction: column; 
+    }
+
+    /* Effetto tremolio pagina al click */
+    @keyframes shake {
+      0% { transform: translate(1px, 1px) rotate(0deg); }
+      10% { transform: translate(-1px, -2px) rotate(-1deg); }
+      20% { transform: translate(-3px, 0px) rotate(1deg); }
+      30% { transform: translate(3px, 2px) rotate(0deg); }
+      40% { transform: translate(1px, -1px) rotate(1deg); }
+      50% { transform: translate(-1px, 2px) rotate(-1deg); }
+      60% { transform: translate(-3px, 1px) rotate(0deg); }
+      70% { transform: translate(3px, 1px) rotate(-1deg); }
+      80% { transform: translate(-1px, -1px) rotate(1deg); }
+      90% { transform: translate(1px, 2px) rotate(0deg); }
+      100% { transform: translate(0px, 0px) rotate(0deg); }
+    }
+    .shake-active { animation: shake 0.4s; }
 
     .logo-main {
       max-width: 500px; width: 60%; height: auto;
@@ -35,12 +53,12 @@
       cursor: pointer;
       animation: bounceX 20s linear infinite alternate, 
                  bounceY 13s linear infinite alternate;
-      transition: transform 0.2s ease;
+      transition: transform 0.2s ease, filter 0.2s ease;
     }
     
     #bouncing-logo:hover img {
-      filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6));
-      transform: scale(1.05);
+      filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.8));
+      transform: scale(1.08);
     }
 
     #bouncing-logo img { width: 100%; height: auto; }
@@ -55,17 +73,23 @@
     @keyframes bounceX { from { left: 0; } to { left: calc(100vw - 180px); } }
     @keyframes bounceY { from { top: 0; } to { top: calc(100vh - 120px); } }
 
-    /* Overlay per crepe e detriti */
-    #crack-overlay {
+    /* Contenitori per gli effetti */
+    #cracks-container {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: 9998; pointer-events: none;
+    }
+    
+    /* Canvas per i frammenti fisici */
+    #glass-canvas {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       z-index: 9999; pointer-events: none;
     }
 
-    /* Stile dei frammenti di vetro */
-    .shard {
-      position: absolute; background: rgba(255,255,255,0.7);
-      clip-path: polygon(50% 0%, 100% 100%, 0% 100%); /* Triangolini */
-      pointer-events: none;
+    /* Flash bianco istantaneo */
+    #flash {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: white; z-index: 10000; opacity: 0; pointer-events: none;
+      transition: opacity 0.1s ease-out;
     }
 
     .footer {
@@ -76,7 +100,9 @@
 </head>
 <body>
 
-  <div id="crack-overlay"></div>
+  <div id="flash"></div>
+  <div id="cracks-container"></div>
+  <canvas id="glass-canvas"></canvas>
 
   <div id="bouncing-logo" onclick="breakAndRedirect(event)">
     <img src="/FullLogo_Transparent.png" alt="Accedi al Software">
@@ -87,87 +113,155 @@
   <div class="footer">Developed by Matteo Marangotto</div>
 
   <script>
+    let isBroken = false;
+
     function breakAndRedirect(e) {
+      if (isBroken) return; // Evita doppi click
+      isBroken = true;
+
       const container = document.getElementById('bouncing-logo');
-      const overlay = document.getElementById('crack-overlay');
       
-      // 1. FERMA IL LOGO DOVE SI TROVA
+      // 1. Ferma il logo
       const rect = container.getBoundingClientRect();
-      container.style.animation = 'none'; // Stop animazione
+      container.style.animation = 'none'; 
       container.style.left = rect.left + 'px';
       container.style.top = rect.top + 'px';
 
-      // 2. COORDINATE IMPATTO
+      // 2. Coordinate
       const clickX = e.clientX || (e.touches && e.touches[0].clientX);
       const clickY = e.clientY || (e.touches && e.touches[0].clientY);
 
-      // 3. EFFETTI VISIVI
-      document.body.style.backgroundColor = "#070b14";
-      document.getElementById('mainLogo').style.opacity = '0.1';
+      // 3. Effetti di impatto (Flash, Shake, Oscuramento)
+      document.body.classList.add('shake-active');
+      document.body.style.backgroundColor = "#04070d";
+      document.getElementById('mainLogo').style.opacity = '0.05';
+      
+      const flash = document.getElementById('flash');
+      flash.style.opacity = '0.8';
+      setTimeout(() => { flash.style.opacity = '0'; }, 50);
 
-      // 4. GENERA CREPE E DETRITI
-      generateGlassEffects(clickX, clickY);
+      // 4. Genera Crepe SVG e Avvia particelle Canvas
+      generateSpiderwebCracks(clickX, clickY);
+      startCanvasParticles(clickX, clickY);
 
-      // 5. REDIRECT
+      // 5. Redirect ritardato per far godere l'animazione
       setTimeout(() => {
         window.location.href = "https://app.condominioeasy.it/login";
-      }, 1500); // Leggermente più lungo per godersi i detriti che cadono
+      }, 1800);
     }
 
-    function generateGlassEffects(x, y) {
-      const overlay = document.getElementById('crack-overlay');
-      let svgContent = `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">`;
+    // --- GENERATORE DI CREPE A RAGNATELA ---
+    function generateSpiderwebCracks(x, y) {
+      const container = document.getElementById('cracks-container');
+      let svg = `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">`;
       
-      // CREPE (Linee zig-zag)
-      for (let i = 0; i < 40; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const length = (Math.random() * window.innerWidth * 0.8);
-        let pathData = `M${x} ${y} `;
+      const numRays = 15 + Math.random() * 10;
+      const maxDist = Math.max(window.innerWidth, window.innerHeight);
+
+      for (let i = 0; i < numRays; i++) {
+        const angle = (i / numRays) * Math.PI * 2 + (Math.random() * 0.2 - 0.1);
         let currX = x, currY = y;
-        for (let j = 0; j < 6; j++) {
-          currX += Math.cos(angle + (Math.random()*0.2-0.1)) * (length/6);
-          currY += Math.sin(angle + (Math.random()*0.2-0.1)) * (length/6);
-          pathData += `L${currX} ${currY} `;
-        }
-        svgContent += `<path d="${pathData}" stroke="white" stroke-width="${Math.random()*1.5}" fill="none" opacity="${Math.random()*0.5+0.2}" />`;
-      }
-      svgContent += `</svg>`;
-      overlay.innerHTML = svgContent;
-
-      // DETRITI (Frammenti che cadono)
-      for (let i = 0; i < 60; i++) {
-        const shard = document.createElement('div');
-        shard.className = 'shard';
-        const size = Math.random() * 8 + 2;
-        shard.style.width = size + 'px';
-        shard.style.height = size + 'px';
-        shard.style.left = x + 'px';
-        shard.style.top = y + 'px';
-        shard.style.opacity = Math.random();
+        let d = `M${x} ${y} `;
         
-        overlay.appendChild(shard);
-
-        // Animazione fisica semplice
-        const velX = (Math.random() - 0.5) * 15;
-        const velY = (Math.random() - 0.8) * 15;
-        let posX = x, posY = y, gravity = 0.5, curVelY = velY;
-
-        const fallInterval = setInterval(() => {
-          posX += velX;
-          curVelY += gravity;
-          posY += curVelY;
+        // Raggi radiali frastagliati
+        for (let j = 0; j < 8; j++) {
+          const step = (maxDist / 8) * (Math.random() * 0.5 + 0.8);
+          currX += Math.cos(angle) * step + (Math.random() * 20 - 10);
+          currY += Math.sin(angle) * step + (Math.random() * 20 - 10);
+          d += `L${currX} ${currY} `;
           
-          shard.style.left = posX + 'px';
-          shard.style.top = posY + 'px';
-          shard.style.transform = `rotate(${posY}deg)`;
-
-          // Ferma i detriti sul fondo (accumulo)
-          if (posY > window.innerHeight - 10) {
-            clearInterval(fallInterval);
-            shard.style.top = (window.innerHeight - Math.random() * 10) + 'px';
+          // Anelli concentrici casuali
+          if (Math.random() > 0.4 && j > 0) {
+            const nextAngle = angle + (Math.PI * 2 / numRays);
+            const ringX = x + Math.cos(nextAngle) * (step * j) + (Math.random()*10);
+            const ringY = y + Math.sin(nextAngle) * (step * j) + (Math.random()*10);
+            svg += `<path d="M${currX} ${currY} L${ringX} ${ringY}" stroke="white" stroke-width="${Math.random()*1.5}" opacity="${Math.random()*0.4+0.1}" fill="none" />`;
           }
-        }, 20);
+        }
+        svg += `<path d="${d}" stroke="white" stroke-width="${Math.random()*2 + 0.5}" opacity="${Math.random()*0.5+0.3}" fill="none" />`;
       }
+      container.innerHTML = svg + `</svg>`;
+    }
+
+    // --- MOTORE FISICO CANVAS PER I DETRITI ---
+    function startCanvasParticles(startX, startY) {
+      const canvas = document.getElementById('glass-canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const shards = [];
+      const numShards = 80; // Quantità di detriti
+
+      // Inizializza i frammenti
+      for (let i = 0; i < numShards; i++) {
+        shards.push({
+          x: startX + (Math.random() * 40 - 20),
+          y: startY + (Math.random() * 40 - 20),
+          vx: (Math.random() - 0.5) * 35, // Esplosione orizzontale
+          vy: (Math.random() - 0.8) * 35, // Esplosione verticale (tende verso l'alto all'inizio)
+          spin: (Math.random() - 0.5) * 0.4, // Velocità di rotazione
+          angle: Math.random() * Math.PI * 2,
+          size: Math.random() * 12 + 3, // Dimensione dei pezzi
+          vertices: Math.floor(Math.random() * 3) + 3, // Da 3 a 5 lati (triangoli/poligoni)
+          opacity: Math.random() * 0.6 + 0.4
+        });
+      }
+
+      const gravity = 0.8;
+      const floorFriction = 0.6;
+      const restitution = 0.4; // "Rimbalzosità"
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let activeShards = 0;
+
+        shards.forEach(s => {
+          // Fisica
+          s.vy += gravity;
+          s.x += s.vx;
+          s.y += s.vy;
+          s.angle += s.spin;
+
+          // Collisione col pavimento (Rimbalzo)
+          if (s.y >= canvas.height - s.size) {
+            s.y = canvas.height - s.size;
+            s.vy *= -restitution; // Inverte la velocità verticale smorzandola
+            s.vx *= floorFriction; // Rallenta orizzontalmente
+            s.spin *= 0.8; // Rallenta la rotazione
+          } else {
+            activeShards++;
+          }
+
+          // Disegna il frammento (Poligono)
+          ctx.save();
+          ctx.translate(s.x, s.y);
+          ctx.rotate(s.angle);
+          ctx.beginPath();
+          for (let v = 0; v < s.vertices; v++) {
+            const vAngle = (v / s.vertices) * Math.PI * 2;
+            // Forma irregolare
+            const radius = s.size * (v % 2 === 0 ? 1 : 0.6); 
+            ctx.lineTo(Math.cos(vAngle) * radius, Math.sin(vAngle) * radius);
+          }
+          ctx.closePath();
+          
+          // Stile del vetro
+          ctx.fillStyle = `rgba(255, 255, 255, ${s.opacity})`;
+          ctx.fill();
+          ctx.strokeStyle = `rgba(200, 220, 255, ${s.opacity + 0.2})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+          ctx.restore();
+        });
+
+        // Continua finché i pezzi si muovono
+        if (activeShards > 0 || shards.some(s => Math.abs(s.vx) > 0.1 || Math.abs(s.vy) > 0.1)) {
+          requestAnimationFrame(animate);
+        }
+      }
+
+      animate(); // Avvia il loop
     }
   </script>
 
