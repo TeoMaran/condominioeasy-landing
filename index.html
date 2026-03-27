@@ -64,11 +64,11 @@
       height: auto;
     }
 
-    /* OTTIMIZZAZIONE MOBILE: Più grande (130px) e più lenta */
+    /* OTTIMIZZAZIONE MOBILE: 130px, lenta */
     @media (max-width: 600px) {
       .bouncing-container { 
         width: 130px; 
-        animation-duration: 15s, 9s; /* Rallentata rispetto a prima */
+        animation-duration: 15s, 9s;
       }
       @keyframes bounceX {
         from { left: 0; }
@@ -91,17 +91,13 @@
       to { top: calc(100vh - 120px); }
     }
 
-    /* EFFETTO SCHERMO ROTTO (Nuova versione robusta) */
+    /* CONTENITORE CREPE DINAMICHE */
     #crack-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      /* Immagine crack in formato base64 per essere sicuri che si carichi sempre */
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cpath d='M0 0l500 500M500 0L0 500M250 0v500M0 250h500' stroke='white' stroke-width='2' opacity='0.5'/%3E%3Cpath d='M100 100l50 20-20 80 100-20 20 150-80-50-70 100' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E");
-      background-color: rgba(255,255,255,0.1);
-      background-size: cover;
       z-index: 9999;
       display: none;
       pointer-events: none;
@@ -121,7 +117,7 @@
 
   <div id="crack-overlay"></div>
 
-  <div class="bouncing-container" onclick="breakAndRedirect()">
+  <div class="bouncing-container" onclick="breakAndRedirect(event)">
     <img src="/FullLogo_Transparent.png" alt="Accedi al Software">
   </div>
 
@@ -130,19 +126,71 @@
   <div class="footer">Developed by Matteo Marangotto</div>
 
   <script>
-    function breakAndRedirect() {
+    function breakAndRedirect(e) {
+      // Ottieni le coordinate precise del click
+      const clickX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clickY = e.clientY || (e.touches && e.touches[0].clientY);
+
       // Attiva l'overlay crack
       const overlay = document.getElementById('crack-overlay');
       overlay.style.display = 'block';
       
-      // Feedback visivo immediato
-      document.body.style.backgroundColor = "#000";
-      document.getElementById('mainLogo').style.opacity = '0.2';
+      // Feedback visivo immediato (schiarisci leggermente lo sfondo e oscura il logo)
+      document.body.style.backgroundColor = "rgba(15, 23, 42, 0.9)";
+      document.getElementById('mainLogo').style.opacity = '0.15';
 
-      // Reindirizza
+      // Genera le crepe dinamicamente partendo dal punto del click
+      generateRealCracks(clickX, clickY);
+
+      // Reindirizza dopo 900ms
       setTimeout(() => {
         window.location.href = "https://app.condominioeasy.it/login";
-      }, 700);
+      }, 900);
+    }
+
+    function generateRealCracks(x, y) {
+      const overlay = document.getElementById('crack-overlay');
+      // Pulisci eventuali crepe precedenti
+      overlay.innerHTML = '';
+      
+      const numLines = 50; // Quante crepe principali generare
+      const maxLength = Math.max(window.innerWidth, window.innerHeight); // Lunghezza massima crepe
+      
+      // Crea un SVG che copre tutto lo schermo
+      let svgContent = `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">`;
+      
+      for (let i = 0; i < numLines; i++) {
+        // Angolo casuale (0-360 gradi)
+        const angle = Math.random() * Math.PI * 2;
+        // Lunghezza casuale della crepa
+        const length = (Math.random() * maxLength * 0.7) + maxLength * 0.1;
+        
+        // Calcola il punto finale della crepa
+        const endX = x + Math.cos(angle) * length;
+        const endY = y + Math.sin(angle) * length;
+        
+        // Genera una linea "spezzata" (zig-zag casuale)
+        let pathData = `M${x} ${y} `;
+        let segments = Math.random() * 5 + 3; // Quanti zig-zag per crepa
+        
+        let currentX = x;
+        let currentY = y;
+        for (let j = 0; j < segments; j++) {
+          let segmentLength = (length / segments) * (0.8 + Math.random() * 0.4);
+          let currentAngle = angle + (Math.random() * 0.4 - 0.2); // Piccola variazione angolo
+          currentX += Math.cos(currentAngle) * segmentLength;
+          currentY += Math.sin(currentAngle) * segmentLength;
+          pathData += `L${currentX} ${currentY} `;
+        }
+        
+        // Aggiungi la linea bianca con larghezza e opacità casuale
+        const strokeWidth = (Math.random() * 1.5 + 0.5);
+        const opacity = (Math.random() * 0.6 + 0.2);
+        svgContent += `<path d="${pathData}" stroke="white" stroke-width="${strokeWidth}" fill="none" opacity="${opacity}" />`;
+      }
+      
+      svgContent += `</svg>`;
+      overlay.innerHTML = svgContent;
     }
   </script>
 
