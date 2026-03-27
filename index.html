@@ -4,6 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>condominioeasy.it</title>
+
+  <meta property="og:title" content="AmministraBot - Condominio Easy">
+  <meta property="og:description" content="App per Gestioni Condominiali">
+  <meta property="og:image" content="https://condominioeasy.it/Logo.png">
+  <meta property="og:url" content="https://condominioeasy.it/">
+  <meta property="og:type" content="website">
+
   <style>
     html, body {
       height: 100%;
@@ -21,32 +28,31 @@
       flex-direction: column;
     }
 
-    /* Immagine centrale: ripristinata grandezza originale e rimossa interazione */
+    /* Immagine centrale fissa */
     .logo-main {
       max-width: 500px;
       width: 60%;
       height: auto;
       filter: drop-shadow(0 6px 18px rgba(0,0,0,.25));
-      pointer-events: none; /* Impedisce che l'immagine sia trascinabile o cliccabile */
+      pointer-events: none;
     }
 
-    /* Logo rimbalzante: più grande e cliccabile */
+    /* Logo rimbalzante e cliccabile */
     .bouncing-container {
       position: fixed;
       top: 0;
       left: 0;
-      width: 180px; /* Ingrandito da 120px a 180px */
+      width: 180px;
       height: auto;
       z-index: 100;
       cursor: pointer;
-      /* Rallentato: aumentati i secondi (20s e 13s) */
       animation: bounceX 20s linear infinite alternate, 
                  bounceY 13s linear infinite alternate;
       transition: transform 0.2s ease;
     }
     
     .bouncing-container:hover {
-      transform: scale(1.05); /* Effetto feedback al passaggio del mouse */
+      transform: scale(1.05);
     }
 
     .bouncing-container img {
@@ -55,14 +61,14 @@
       filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
     }
 
-    /* Animazioni Rimbalzo */
+    /* Animazione Rimbalzo */
     @keyframes bounceX {
       from { left: 0; }
-      to { left: calc(100vw - 180px); } /* Sottrai la nuova larghezza del logo */
+      to { left: calc(100vw - 180px); }
     }
     @keyframes bounceY {
       from { top: 0; }
-      to { top: calc(100vh - 100px); } /* Sottrai l'altezza approssimativa */
+      to { top: calc(100vh - 100px); }
     }
 
     .footer {
