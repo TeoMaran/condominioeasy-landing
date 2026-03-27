@@ -40,22 +40,20 @@
       transition: opacity 0.3s;
     }
 
-    /* Logo rimbalzante */
+    /* Logo rimbalzante Desktop */
     .bouncing-container {
       position: fixed;
       top: 0;
       left: 0;
-      width: 180px; /* Desktop */
+      width: 180px;
       height: auto;
       z-index: 100;
       cursor: pointer;
       animation: bounceX 20s linear infinite alternate, 
                  bounceY 13s linear infinite alternate;
       transition: transform 0.2s ease;
-      text-decoration: none;
     }
     
-    /* Effetto GLOW al passaggio del mouse */
     .bouncing-container:hover img {
       filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6));
       transform: scale(1.1);
@@ -66,21 +64,21 @@
       height: auto;
     }
 
-    /* OTTIMIZZAZIONE MOBILE */
+    /* OTTIMIZZAZIONE MOBILE: Più grande (130px) e più lenta */
     @media (max-width: 600px) {
       .bouncing-container { 
-        width: 100px; /* Più piccolo su smartphone */
-        animation-duration: 10s, 6s; /* Più veloce su schermi piccoli */
+        width: 130px; 
+        animation-duration: 15s, 9s; /* Rallentata rispetto a prima */
       }
       @keyframes bounceX {
         from { left: 0; }
-        to { left: calc(100vw - 100px); }
+        to { left: calc(100vw - 130px); }
       }
       @keyframes bounceY {
         from { top: 0; }
-        to { top: calc(100vh - 80px); }
+        to { top: calc(100vh - 100px); }
       }
-      .logo-main { width: 80%; }
+      .logo-main { width: 85%; }
     }
 
     /* Animazione Desktop */
@@ -93,19 +91,20 @@
       to { top: calc(100vh - 120px); }
     }
 
-    /* EFFETTO SCHERMO ROTTO */
+    /* EFFETTO SCHERMO ROTTO (Nuova versione robusta) */
     #crack-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: url('https://www.transparentpng.com/download/crack/glass-crack-png-2.png') center center no-repeat;
+      /* Immagine crack in formato base64 per essere sicuri che si carichi sempre */
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cpath d='M0 0l500 500M500 0L0 500M250 0v500M0 250h500' stroke='white' stroke-width='2' opacity='0.5'/%3E%3Cpath d='M100 100l50 20-20 80 100-20 20 150-80-50-70 100' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E");
+      background-color: rgba(255,255,255,0.1);
       background-size: cover;
       z-index: 9999;
-      display: none; /* Nascosto di default */
+      display: none;
       pointer-events: none;
-      filter: invert(1); /* Rende le crepe bianche/chiare per lo sfondo scuro */
     }
 
     .footer {
@@ -132,17 +131,18 @@
 
   <script>
     function breakAndRedirect() {
-      // Mostra l'effetto crepe
+      // Attiva l'overlay crack
       const overlay = document.getElementById('crack-overlay');
       overlay.style.display = 'block';
       
-      // Nasconde gradualmente il logo centrale per enfasi
-      document.getElementById('mainLogo').style.opacity = '0.3';
+      // Feedback visivo immediato
+      document.body.style.backgroundColor = "#000";
+      document.getElementById('mainLogo').style.opacity = '0.2';
 
-      // Reindirizza dopo 800 millisecondi (meno di un secondo)
+      // Reindirizza
       setTimeout(() => {
         window.location.href = "https://app.condominioeasy.it/login";
-      }, 800);
+      }, 700);
     }
   </script>
 
