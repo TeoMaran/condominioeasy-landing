@@ -15,101 +15,62 @@
 
   <style>
     html, body {
-      height: 100%;
-      margin: 0;
-      overflow: hidden;
-      background: #0f172a;
-      color: #fff;
+      height: 100%; margin: 0; overflow: hidden;
+      background: #0f172a; color: #fff;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu;
     }
     
-    body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-    }
+    body { display: flex; align-items: center; justify-content: center; flex-direction: column; }
 
-    /* Immagine centrale fissa */
     .logo-main {
-      max-width: 500px;
-      width: 60%;
-      height: auto;
+      max-width: 500px; width: 60%; height: auto;
       filter: drop-shadow(0 6px 18px rgba(0,0,0,.25));
-      pointer-events: none;
-      transition: opacity 0.3s;
+      pointer-events: none; transition: opacity 0.4s;
     }
 
-    /* Logo rimbalzante Desktop */
-    .bouncing-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 180px;
-      height: auto;
-      z-index: 100;
+    /* Logo rimbalzante */
+    #bouncing-logo {
+      position: fixed; top: 0; left: 0;
+      width: 180px; height: auto; z-index: 100;
       cursor: pointer;
       animation: bounceX 20s linear infinite alternate, 
                  bounceY 13s linear infinite alternate;
       transition: transform 0.2s ease;
     }
     
-    .bouncing-container:hover img {
+    #bouncing-logo:hover img {
       filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6));
-      transform: scale(1.1);
+      transform: scale(1.05);
     }
 
-    .bouncing-container img {
-      width: 100%;
-      height: auto;
-    }
+    #bouncing-logo img { width: 100%; height: auto; }
 
-    /* OTTIMIZZAZIONE MOBILE: 130px, lenta */
     @media (max-width: 600px) {
-      .bouncing-container { 
-        width: 130px; 
-        animation-duration: 15s, 9s;
-      }
-      @keyframes bounceX {
-        from { left: 0; }
-        to { left: calc(100vw - 130px); }
-      }
-      @keyframes bounceY {
-        from { top: 0; }
-        to { top: calc(100vh - 100px); }
-      }
+      #bouncing-logo { width: 130px; animation-duration: 15s, 9s; }
+      @keyframes bounceX { from { left: 0; } to { left: calc(100vw - 130px); } }
+      @keyframes bounceY { from { top: 0; } to { top: calc(100vh - 100px); } }
       .logo-main { width: 85%; }
     }
 
-    /* Animazione Desktop */
-    @keyframes bounceX {
-      from { left: 0; }
-      to { left: calc(100vw - 180px); }
-    }
-    @keyframes bounceY {
-      from { top: 0; }
-      to { top: calc(100vh - 120px); }
+    @keyframes bounceX { from { left: 0; } to { left: calc(100vw - 180px); } }
+    @keyframes bounceY { from { top: 0; } to { top: calc(100vh - 120px); } }
+
+    /* Overlay per crepe e detriti */
+    #crack-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: 9999; pointer-events: none;
     }
 
-    /* CONTENITORE CREPE DINAMICHE */
-    #crack-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 9999;
-      display: none;
+    /* Stile dei frammenti di vetro */
+    .shard {
+      position: absolute; background: rgba(255,255,255,0.7);
+      clip-path: polygon(50% 0%, 100% 100%, 0% 100%); /* Triangolini */
       pointer-events: none;
     }
 
     .footer {
-      position: fixed;
-      bottom: 18px;
-      font-size: 12px;
-      opacity: .75;
-      letter-spacing: .3px;
-      z-index: 10;
+      position: fixed; bottom: 18px; font-size: 12px;
+      opacity: .75; letter-spacing: .3px; z-index: 10;
     }
   </style>
 </head>
@@ -117,7 +78,7 @@
 
   <div id="crack-overlay"></div>
 
-  <div class="bouncing-container" onclick="breakAndRedirect(event)">
+  <div id="bouncing-logo" onclick="breakAndRedirect(event)">
     <img src="/FullLogo_Transparent.png" alt="Accedi al Software">
   </div>
 
@@ -127,70 +88,86 @@
 
   <script>
     function breakAndRedirect(e) {
-      // Ottieni le coordinate precise del click
+      const container = document.getElementById('bouncing-logo');
+      const overlay = document.getElementById('crack-overlay');
+      
+      // 1. FERMA IL LOGO DOVE SI TROVA
+      const rect = container.getBoundingClientRect();
+      container.style.animation = 'none'; // Stop animazione
+      container.style.left = rect.left + 'px';
+      container.style.top = rect.top + 'px';
+
+      // 2. COORDINATE IMPATTO
       const clickX = e.clientX || (e.touches && e.touches[0].clientX);
       const clickY = e.clientY || (e.touches && e.touches[0].clientY);
 
-      // Attiva l'overlay crack
-      const overlay = document.getElementById('crack-overlay');
-      overlay.style.display = 'block';
-      
-      // Feedback visivo immediato (schiarisci leggermente lo sfondo e oscura il logo)
-      document.body.style.backgroundColor = "rgba(15, 23, 42, 0.9)";
-      document.getElementById('mainLogo').style.opacity = '0.15';
+      // 3. EFFETTI VISIVI
+      document.body.style.backgroundColor = "#070b14";
+      document.getElementById('mainLogo').style.opacity = '0.1';
 
-      // Genera le crepe dinamicamente partendo dal punto del click
-      generateRealCracks(clickX, clickY);
+      // 4. GENERA CREPE E DETRITI
+      generateGlassEffects(clickX, clickY);
 
-      // Reindirizza dopo 900ms
+      // 5. REDIRECT
       setTimeout(() => {
         window.location.href = "https://app.condominioeasy.it/login";
-      }, 900);
+      }, 1500); // Leggermente più lungo per godersi i detriti che cadono
     }
 
-    function generateRealCracks(x, y) {
+    function generateGlassEffects(x, y) {
       const overlay = document.getElementById('crack-overlay');
-      // Pulisci eventuali crepe precedenti
-      overlay.innerHTML = '';
-      
-      const numLines = 50; // Quante crepe principali generare
-      const maxLength = Math.max(window.innerWidth, window.innerHeight); // Lunghezza massima crepe
-      
-      // Crea un SVG che copre tutto lo schermo
       let svgContent = `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">`;
       
-      for (let i = 0; i < numLines; i++) {
-        // Angolo casuale (0-360 gradi)
+      // CREPE (Linee zig-zag)
+      for (let i = 0; i < 40; i++) {
         const angle = Math.random() * Math.PI * 2;
-        // Lunghezza casuale della crepa
-        const length = (Math.random() * maxLength * 0.7) + maxLength * 0.1;
-        
-        // Calcola il punto finale della crepa
-        const endX = x + Math.cos(angle) * length;
-        const endY = y + Math.sin(angle) * length;
-        
-        // Genera una linea "spezzata" (zig-zag casuale)
+        const length = (Math.random() * window.innerWidth * 0.8);
         let pathData = `M${x} ${y} `;
-        let segments = Math.random() * 5 + 3; // Quanti zig-zag per crepa
-        
-        let currentX = x;
-        let currentY = y;
-        for (let j = 0; j < segments; j++) {
-          let segmentLength = (length / segments) * (0.8 + Math.random() * 0.4);
-          let currentAngle = angle + (Math.random() * 0.4 - 0.2); // Piccola variazione angolo
-          currentX += Math.cos(currentAngle) * segmentLength;
-          currentY += Math.sin(currentAngle) * segmentLength;
-          pathData += `L${currentX} ${currentY} `;
+        let currX = x, currY = y;
+        for (let j = 0; j < 6; j++) {
+          currX += Math.cos(angle + (Math.random()*0.2-0.1)) * (length/6);
+          currY += Math.sin(angle + (Math.random()*0.2-0.1)) * (length/6);
+          pathData += `L${currX} ${currY} `;
         }
-        
-        // Aggiungi la linea bianca con larghezza e opacità casuale
-        const strokeWidth = (Math.random() * 1.5 + 0.5);
-        const opacity = (Math.random() * 0.6 + 0.2);
-        svgContent += `<path d="${pathData}" stroke="white" stroke-width="${strokeWidth}" fill="none" opacity="${opacity}" />`;
+        svgContent += `<path d="${pathData}" stroke="white" stroke-width="${Math.random()*1.5}" fill="none" opacity="${Math.random()*0.5+0.2}" />`;
       }
-      
       svgContent += `</svg>`;
       overlay.innerHTML = svgContent;
+
+      // DETRITI (Frammenti che cadono)
+      for (let i = 0; i < 60; i++) {
+        const shard = document.createElement('div');
+        shard.className = 'shard';
+        const size = Math.random() * 8 + 2;
+        shard.style.width = size + 'px';
+        shard.style.height = size + 'px';
+        shard.style.left = x + 'px';
+        shard.style.top = y + 'px';
+        shard.style.opacity = Math.random();
+        
+        overlay.appendChild(shard);
+
+        // Animazione fisica semplice
+        const velX = (Math.random() - 0.5) * 15;
+        const velY = (Math.random() - 0.8) * 15;
+        let posX = x, posY = y, gravity = 0.5, curVelY = velY;
+
+        const fallInterval = setInterval(() => {
+          posX += velX;
+          curVelY += gravity;
+          posY += curVelY;
+          
+          shard.style.left = posX + 'px';
+          shard.style.top = posY + 'px';
+          shard.style.transform = `rotate(${posY}deg)`;
+
+          // Ferma i detriti sul fondo (accumulo)
+          if (posY > window.innerHeight - 10) {
+            clearInterval(fallInterval);
+            shard.style.top = (window.innerHeight - Math.random() * 10) + 'px';
+          }
+        }, 20);
+      }
     }
   </script>
 
