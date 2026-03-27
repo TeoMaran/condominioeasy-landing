@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>condominioeasy.it</title>
 
+  <link rel="icon" type="image/png" href="/Logo.png">
+
   <meta property="og:title" content="AmministraBot - Condominio Easy">
   <meta property="og:description" content="App per Gestioni Condominiali">
   <meta property="og:image" content="https://condominioeasy.it/Logo.png">
@@ -35,40 +37,75 @@
       height: auto;
       filter: drop-shadow(0 6px 18px rgba(0,0,0,.25));
       pointer-events: none;
+      transition: opacity 0.3s;
     }
 
-    /* Logo rimbalzante e cliccabile */
+    /* Logo rimbalzante */
     .bouncing-container {
       position: fixed;
       top: 0;
       left: 0;
-      width: 180px;
+      width: 180px; /* Desktop */
       height: auto;
       z-index: 100;
       cursor: pointer;
       animation: bounceX 20s linear infinite alternate, 
                  bounceY 13s linear infinite alternate;
       transition: transform 0.2s ease;
+      text-decoration: none;
     }
     
-    .bouncing-container:hover {
-      transform: scale(1.05);
+    /* Effetto GLOW al passaggio del mouse */
+    .bouncing-container:hover img {
+      filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6));
+      transform: scale(1.1);
     }
 
     .bouncing-container img {
       width: 100%;
       height: auto;
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
     }
 
-    /* Animazione Rimbalzo */
+    /* OTTIMIZZAZIONE MOBILE */
+    @media (max-width: 600px) {
+      .bouncing-container { 
+        width: 100px; /* Più piccolo su smartphone */
+        animation-duration: 10s, 6s; /* Più veloce su schermi piccoli */
+      }
+      @keyframes bounceX {
+        from { left: 0; }
+        to { left: calc(100vw - 100px); }
+      }
+      @keyframes bounceY {
+        from { top: 0; }
+        to { top: calc(100vh - 80px); }
+      }
+      .logo-main { width: 80%; }
+    }
+
+    /* Animazione Desktop */
     @keyframes bounceX {
       from { left: 0; }
       to { left: calc(100vw - 180px); }
     }
     @keyframes bounceY {
       from { top: 0; }
-      to { top: calc(100vh - 100px); }
+      to { top: calc(100vh - 120px); }
+    }
+
+    /* EFFETTO SCHERMO ROTTO */
+    #crack-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: url('https://www.transparentpng.com/download/crack/glass-crack-png-2.png') center center no-repeat;
+      background-size: cover;
+      z-index: 9999;
+      display: none; /* Nascosto di default */
+      pointer-events: none;
+      filter: invert(1); /* Rende le crepe bianche/chiare per lo sfondo scuro */
     }
 
     .footer {
@@ -83,13 +120,31 @@
 </head>
 <body>
 
-  <a href="https://app.condominioeasy.it/login" class="bouncing-container">
-    <img src="/FullLogo_Transparent.png" alt="Accedi al Software">
-  </a>
+  <div id="crack-overlay"></div>
 
-  <img src="/Logo.png" alt="Logo" class="logo-main">
+  <div class="bouncing-container" onclick="breakAndRedirect()">
+    <img src="/FullLogo_Transparent.png" alt="Accedi al Software">
+  </div>
+
+  <img src="/Logo.png" alt="Logo" class="logo-main" id="mainLogo">
 
   <div class="footer">Developed by Matteo Marangotto</div>
+
+  <script>
+    function breakAndRedirect() {
+      // Mostra l'effetto crepe
+      const overlay = document.getElementById('crack-overlay');
+      overlay.style.display = 'block';
+      
+      // Nasconde gradualmente il logo centrale per enfasi
+      document.getElementById('mainLogo').style.opacity = '0.3';
+
+      // Reindirizza dopo 800 millisecondi (meno di un secondo)
+      setTimeout(() => {
+        window.location.href = "https://app.condominioeasy.it/login";
+      }, 800);
+    }
+  </script>
 
 </body>
 </html>
