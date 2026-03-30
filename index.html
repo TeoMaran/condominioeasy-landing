@@ -24,26 +24,12 @@
       display: flex; align-items: center; justify-content: center; flex-direction: column; 
     }
 
-    /* Effetto tremolio pagina al click */
-    @keyframes shake {
-      0% { transform: translate(1px, 1px) rotate(0deg); }
-      10% { transform: translate(-1px, -2px) rotate(-1deg); }
-      20% { transform: translate(-3px, 0px) rotate(1deg); }
-      30% { transform: translate(3px, 2px) rotate(0deg); }
-      40% { transform: translate(1px, -1px) rotate(1deg); }
-      50% { transform: translate(-1px, 2px) rotate(-1deg); }
-      60% { transform: translate(-3px, 1px) rotate(0deg); }
-      70% { transform: translate(3px, 1px) rotate(-1deg); }
-      80% { transform: translate(-1px, -1px) rotate(1deg); }
-      90% { transform: translate(1px, 2px) rotate(0deg); }
-      100% { transform: translate(0px, 0px) rotate(0deg); }
-    }
-    .shake-active { animation: shake 0.4s; }
-
+    /* Immagine centrale fissa */
     .logo-main {
       max-width: 500px; width: 60%; height: auto;
       filter: drop-shadow(0 6px 18px rgba(0,0,0,.25));
       pointer-events: none; transition: opacity 0.4s;
+      z-index: 10;
     }
 
     /* Logo rimbalzante */
@@ -57,8 +43,8 @@
     }
     
     #bouncing-logo:hover img {
-      filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.8));
-      transform: scale(1.08);
+      filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
+      transform: scale(1.05);
     }
 
     #bouncing-logo img { width: 100%; height: auto; }
@@ -73,53 +59,66 @@
     @keyframes bounceX { from { left: 0; } to { left: calc(100vw - 180px); } }
     @keyframes bounceY { from { top: 0; } to { top: calc(100vh - 120px); } }
 
-    /* Contenitori per gli effetti */
-    #cracks-container {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      z-index: 9998; pointer-events: none;
+    /* --- EFFETTO TRANSIZIONE ELEGANTE (RIPPLE) --- */
+    #ripple-overlay {
+      position: fixed;
+      border-radius: 50%;
+      background: #1e293b; /* Un blu notte leggermente più chiaro dello sfondo */
+      transform: scale(0);
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); /* Curva di accelerazione fluida */
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* Footer con Flexbox per allineare testo e icona */
+    .footer {
+      position: fixed; bottom: 18px; font-size: 13px;
+      opacity: .75; letter-spacing: .3px; z-index: 10;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+
+    /* Stile link LinkedIn */
+    .linkedin-link {
+      color: #fff;
+      display: flex;
+      align-items: center;
+      transition: opacity 0.2s;
     }
     
-    /* Canvas per i frammenti fisici */
-    #glass-canvas {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      z-index: 9999; pointer-events: none;
-    }
-
-    /* Flash bianco istantaneo */
-    #flash {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: white; z-index: 10000; opacity: 0; pointer-events: none;
-      transition: opacity 0.1s ease-out;
-    }
-
-    .footer {
-      position: fixed; bottom: 18px; font-size: 12px;
-      opacity: .75; letter-spacing: .3px; z-index: 10;
+    .linkedin-link:hover {
+      opacity: 1;
+      filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
     }
   </style>
 </head>
 <body>
 
-  <div id="flash"></div>
-  <div id="cracks-container"></div>
-  <canvas id="glass-canvas"></canvas>
+  <div id="ripple-overlay"></div>
 
-  <div id="bouncing-logo" onclick="breakAndRedirect(event)">
+  <div id="bouncing-logo" onclick="smoothRedirect(event)">
     <img src="/FullLogo_Transparent.png" alt="Accedi al Software">
   </div>
 
   <img src="/Logo.png" alt="Logo" class="logo-main" id="mainLogo">
 
-  <div class="footer">Developed by Matteo Marangotto</div>
+  <div class="footer">
+    Developed by Matteo Marangotto
+    <a href="https://www.linkedin.com/in/matteo-mara/" target="_blank" rel="noopener noreferrer" class="linkedin-link" title="Profilo LinkedIn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"/>
+      </svg>
+    </a>
+  </div>
 
   <script>
-    let isBroken = false;
+    let isTransitioning = false;
 
-    function breakAndRedirect(e) {
-      if (isBroken) return; // Evita doppi click
-      isBroken = true;
+    function smoothRedirect(e) {
+      if (isTransitioning) return;
+      isTransitioning = true;
 
       const container = document.getElementById('bouncing-logo');
+      const ripple = document.getElementById('ripple-overlay');
       
       // 1. Ferma il logo
       const rect = container.getBoundingClientRect();
@@ -127,141 +126,34 @@
       container.style.left = rect.left + 'px';
       container.style.top = rect.top + 'px';
 
-      // 2. Coordinate
+      // 2. Trova le coordinate del click
       const clickX = e.clientX || (e.touches && e.touches[0].clientX);
       const clickY = e.clientY || (e.touches && e.touches[0].clientY);
 
-      // 3. Effetti di impatto (Flash, Shake, Oscuramento)
-      document.body.classList.add('shake-active');
-      document.body.style.backgroundColor = "#04070d";
-      document.getElementById('mainLogo').style.opacity = '0.05';
-      
-      const flash = document.getElementById('flash');
-      flash.style.opacity = '0.8';
-      setTimeout(() => { flash.style.opacity = '0'; }, 50);
+      // 3. Calcola quanto deve essere grande il cerchio per coprire tutto lo schermo
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      // Il raggio deve essere pari alla distanza dal click all'angolo più lontano dello schermo
+      const maxDist = Math.hypot(Math.max(clickX, w - clickX), Math.max(clickY, h - clickY));
 
-      // 4. Genera Crepe SVG e Avvia particelle Canvas
-      generateSpiderwebCracks(clickX, clickY);
-      startCanvasParticles(clickX, clickY);
+      // Imposta dimensioni e posizione iniziale del cerchio (nascosto al centro del click)
+      ripple.style.width = (maxDist * 2) + 'px';
+      ripple.style.height = (maxDist * 2) + 'px';
+      ripple.style.left = (clickX - maxDist) + 'px';
+      ripple.style.top = (clickY - maxDist) + 'px';
 
-      // 5. Redirect ritardato per far godere l'animazione
+      // Oscura leggermente il logo centrale per dare profondità
+      document.getElementById('mainLogo').style.opacity = '0';
+
+      // 4. Avvia l'animazione di espansione
+      requestAnimationFrame(() => {
+        ripple.style.transform = 'scale(1)';
+      });
+
+      // 5. Reindirizza dopo che l'onda ha coperto lo schermo (600ms)
       setTimeout(() => {
         window.location.href = "https://app.condominioeasy.it/login";
-      }, 1800);
-    }
-
-    // --- GENERATORE DI CREPE A RAGNATELA ---
-    function generateSpiderwebCracks(x, y) {
-      const container = document.getElementById('cracks-container');
-      let svg = `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">`;
-      
-      const numRays = 15 + Math.random() * 10;
-      const maxDist = Math.max(window.innerWidth, window.innerHeight);
-
-      for (let i = 0; i < numRays; i++) {
-        const angle = (i / numRays) * Math.PI * 2 + (Math.random() * 0.2 - 0.1);
-        let currX = x, currY = y;
-        let d = `M${x} ${y} `;
-        
-        // Raggi radiali frastagliati
-        for (let j = 0; j < 8; j++) {
-          const step = (maxDist / 8) * (Math.random() * 0.5 + 0.8);
-          currX += Math.cos(angle) * step + (Math.random() * 20 - 10);
-          currY += Math.sin(angle) * step + (Math.random() * 20 - 10);
-          d += `L${currX} ${currY} `;
-          
-          // Anelli concentrici casuali
-          if (Math.random() > 0.4 && j > 0) {
-            const nextAngle = angle + (Math.PI * 2 / numRays);
-            const ringX = x + Math.cos(nextAngle) * (step * j) + (Math.random()*10);
-            const ringY = y + Math.sin(nextAngle) * (step * j) + (Math.random()*10);
-            svg += `<path d="M${currX} ${currY} L${ringX} ${ringY}" stroke="white" stroke-width="${Math.random()*1.5}" opacity="${Math.random()*0.4+0.1}" fill="none" />`;
-          }
-        }
-        svg += `<path d="${d}" stroke="white" stroke-width="${Math.random()*2 + 0.5}" opacity="${Math.random()*0.5+0.3}" fill="none" />`;
-      }
-      container.innerHTML = svg + `</svg>`;
-    }
-
-    // --- MOTORE FISICO CANVAS PER I DETRITI ---
-    function startCanvasParticles(startX, startY) {
-      const canvas = document.getElementById('glass-canvas');
-      const ctx = canvas.getContext('2d');
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-
-      const shards = [];
-      const numShards = 80; // Quantità di detriti
-
-      // Inizializza i frammenti
-      for (let i = 0; i < numShards; i++) {
-        shards.push({
-          x: startX + (Math.random() * 40 - 20),
-          y: startY + (Math.random() * 40 - 20),
-          vx: (Math.random() - 0.5) * 35, // Esplosione orizzontale
-          vy: (Math.random() - 0.8) * 35, // Esplosione verticale (tende verso l'alto all'inizio)
-          spin: (Math.random() - 0.5) * 0.4, // Velocità di rotazione
-          angle: Math.random() * Math.PI * 2,
-          size: Math.random() * 12 + 3, // Dimensione dei pezzi
-          vertices: Math.floor(Math.random() * 3) + 3, // Da 3 a 5 lati (triangoli/poligoni)
-          opacity: Math.random() * 0.6 + 0.4
-        });
-      }
-
-      const gravity = 0.8;
-      const floorFriction = 0.6;
-      const restitution = 0.4; // "Rimbalzosità"
-
-      function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        let activeShards = 0;
-
-        shards.forEach(s => {
-          // Fisica
-          s.vy += gravity;
-          s.x += s.vx;
-          s.y += s.vy;
-          s.angle += s.spin;
-
-          // Collisione col pavimento (Rimbalzo)
-          if (s.y >= canvas.height - s.size) {
-            s.y = canvas.height - s.size;
-            s.vy *= -restitution; // Inverte la velocità verticale smorzandola
-            s.vx *= floorFriction; // Rallenta orizzontalmente
-            s.spin *= 0.8; // Rallenta la rotazione
-          } else {
-            activeShards++;
-          }
-
-          // Disegna il frammento (Poligono)
-          ctx.save();
-          ctx.translate(s.x, s.y);
-          ctx.rotate(s.angle);
-          ctx.beginPath();
-          for (let v = 0; v < s.vertices; v++) {
-            const vAngle = (v / s.vertices) * Math.PI * 2;
-            // Forma irregolare
-            const radius = s.size * (v % 2 === 0 ? 1 : 0.6); 
-            ctx.lineTo(Math.cos(vAngle) * radius, Math.sin(vAngle) * radius);
-          }
-          ctx.closePath();
-          
-          // Stile del vetro
-          ctx.fillStyle = `rgba(255, 255, 255, ${s.opacity})`;
-          ctx.fill();
-          ctx.strokeStyle = `rgba(200, 220, 255, ${s.opacity + 0.2})`;
-          ctx.lineWidth = 1;
-          ctx.stroke();
-          ctx.restore();
-        });
-
-        // Continua finché i pezzi si muovono
-        if (activeShards > 0 || shards.some(s => Math.abs(s.vx) > 0.1 || Math.abs(s.vy) > 0.1)) {
-          requestAnimationFrame(animate);
-        }
-      }
-
-      animate(); // Avvia il loop
+      }, 600);
     }
   </script>
 
