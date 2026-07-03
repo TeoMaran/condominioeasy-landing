@@ -15,62 +15,66 @@
 
 <style>
 
-html, body{
+html,body{
     height:100%;
     margin:0;
     overflow:hidden;
-    background:#071633;
-    color:white;
+    background:#0f172a;
+    color:#fff;
     font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu;
 }
 
 body{
     display:flex;
-    justify-content:center;
     align-items:center;
+    justify-content:center;
     flex-direction:column;
 }
 
-/* --------------------------
-   LOGO CENTRALE
--------------------------- */
+/* LOGO CENTRALE */
 
 .logo-main{
 
-    max-width:520px;
+    max-width:500px;
     width:60%;
     height:auto;
 
-    filter:drop-shadow(0 8px 20px rgba(0,0,0,.2));
+    filter:drop-shadow(
+        0 6px 18px rgba(0,0,0,.25)
+    );
 
+    pointer-events:none;
     transition:opacity .4s;
-
     z-index:10;
 
-    /* sfumatura bordi */
+    /* sfumatura rettangolare morbida */
 
     -webkit-mask-image:
-      radial-gradient(
-        ellipse at center,
-        rgba(0,0,0,1) 50%,
-        rgba(0,0,0,.9) 65%,
-        rgba(0,0,0,.5) 80%,
+    radial-gradient(
+        ellipse 90% 90% at center,
+        rgba(0,0,0,1) 30%,
+        rgba(0,0,0,.95) 50%,
+        rgba(0,0,0,.85) 65%,
+        rgba(0,0,0,.6) 78%,
+        rgba(0,0,0,.35) 88%,
         transparent 100%
-      );
+    );
 
     mask-image:
-      radial-gradient(
-        ellipse at center,
-        rgba(0,0,0,1) 50%,
-        rgba(0,0,0,.9) 65%,
-        rgba(0,0,0,.5) 80%,
+    radial-gradient(
+        ellipse 90% 90% at center,
+        rgba(0,0,0,1) 30%,
+        rgba(0,0,0,.95) 50%,
+        rgba(0,0,0,.85) 65%,
+        rgba(0,0,0,.6) 78%,
+        rgba(0,0,0,.35) 88%,
         transparent 100%
-      );
+    );
+
+    border-radius:50px;
 }
 
-/* --------------------------
-   LOGO CHE RIMBALZA
--------------------------- */
+/* LOGO RIMBALZANTE */
 
 #bouncing-logo{
 
@@ -85,26 +89,28 @@ body{
     cursor:pointer;
 
     animation:
-        bounceX 20s linear infinite alternate,
-        bounceY 13s linear infinite alternate;
+    bounceX 20s linear infinite alternate,
+    bounceY 13s linear infinite alternate;
 
     transition:
-        transform .2s,
-        filter .2s;
-}
-
-#bouncing-logo img{
-    width:100%;
-    height:auto;
+    transform .2s ease,
+    filter .2s ease;
 }
 
 #bouncing-logo:hover img{
-    transform:scale(1.05);
 
     filter:
-      drop-shadow(
-        0 0 20px rgba(255,255,255,.4)
-      );
+    drop-shadow(
+    0 0 20px rgba(255,255,255,.4)
+    );
+
+    transform:scale(1.05);
+}
+
+#bouncing-logo img{
+
+    width:100%;
+    height:auto;
 }
 
 @keyframes bounceX{
@@ -121,9 +127,7 @@ to{top:calc(100vh - 120px);}
 
 }
 
-/* --------------------------
-   RIPPLE
--------------------------- */
+/* RIPPLE */
 
 #ripple-overlay{
 
@@ -135,21 +139,19 @@ to{top:calc(100vh - 120px);}
     transform:scale(0);
 
     transition:
-      transform .6s cubic-bezier(0.4,0,0.2,1);
+    transform .6s cubic-bezier(
+    0.4,0,0.2,1
+    );
 
     pointer-events:none;
-
     z-index:9999;
 }
 
-/* --------------------------
-   FOOTER
--------------------------- */
+/* FOOTER */
 
 .footer-wrapper{
 
     position:fixed;
-
     bottom:18px;
 
     display:flex;
@@ -166,11 +168,12 @@ to{top:calc(100vh - 120px);}
 
     width:180px;
     height:auto;
+
     display:block;
 
     transition:
-      transform .25s,
-      opacity .25s;
+    transform .25s ease,
+    opacity .25s ease;
 }
 
 .appstore-link:hover img{
@@ -182,38 +185,40 @@ to{top:calc(100vh - 120px);}
 .footer{
 
     font-size:13px;
-
     opacity:.75;
+
+    letter-spacing:.3px;
 
     display:flex;
 
     align-items:center;
+    justify-content:center;
 
     gap:8px;
 }
 
 .linkedin-link{
 
-    color:white;
-
+    color:#fff;
     display:flex;
-
     align-items:center;
+
+    transition:opacity .2s;
 }
 
 .linkedin-link:hover{
 
+    opacity:1;
+
     filter:
-      drop-shadow(
-        0 0 5px rgba(255,255,255,.5)
-      );
+    drop-shadow(
+    0 0 5px rgba(255,255,255,.5)
+    );
 }
 
-/* --------------------------
-   MOBILE
--------------------------- */
+/* TELEFONI NORMALI */
 
-@media(max-width:600px){
+@media (max-width:600px){
 
     .logo-main{
         width:85%;
@@ -228,44 +233,51 @@ to{top:calc(100vh - 120px);}
         width:130px;
 
         animation-duration:
-            15s,
-            9s;
+        15s,9s;
     }
 
     @keyframes bounceX{
 
         from{left:0;}
-        to{left:calc(100vw - 130px);}
+        to{left:calc(
+            100vw - 130px
+        );}
     }
 
     @keyframes bounceY{
 
         from{top:0;}
-        to{top:calc(100vh - 100px);}
+        to{top:calc(
+            100vh - 100px
+        );}
     }
 }
 
-/* --------------------------
-   LANDSCAPE TABLET/PHONE
--------------------------- */
+/* TABLET/TELEFONI ORIZZONTALI */
 
-@media (max-height:700px){
-
-    .logo-main{
-        width:42%;
-    }
+@media (orientation:landscape)
+and (max-height:550px){
 
     .footer-wrapper{
-        gap:6px;
-        bottom:8px;
+
+        bottom:5px;
+        gap:4px;
     }
 
     .appstore-link img{
-        width:130px;
+
+        width:115px;
     }
 
     .footer{
-        font-size:11px;
+
+        font-size:10px;
+    }
+
+    .logo-main{
+
+        width:50%;
+        max-height:65vh;
     }
 }
 
@@ -276,25 +288,31 @@ to{top:calc(100vh - 120px);}
 
 <div id="ripple-overlay"></div>
 
-<div id="bouncing-logo" onclick="smoothRedirect(event)">
-    <img src="/FullLogo_Transparent.png"
-         alt="Accedi al Software">
+<div id="bouncing-logo"
+onclick="smoothRedirect(event)">
+
+<img src="/FullLogo_Transparent.png"
+alt="Accedi al Software">
+
 </div>
 
-<img src="/Logo.png"
-     alt="Logo"
-     class="logo-main"
-     id="mainLogo">
+<img
+src="/Logo.png"
+alt="Logo"
+class="logo-main"
+id="mainLogo">
 
 <div class="footer-wrapper">
 
-<a href="https://apps.apple.com/it/app/amministrabot/id6779252185"
-   target="_blank"
-   rel="noopener noreferrer"
-   class="appstore-link">
+<a
+href="https://apps.apple.com/it/app/amministrabot/id6779252185"
+target="_blank"
+rel="noopener noreferrer"
+class="appstore-link">
 
-<img src="/AppStore.jpg"
-     alt="Scarica AmministraBot su App Store">
+<img
+src="/AppStore.jpg"
+alt="Scarica AmministraBot su App Store">
 
 </a>
 
@@ -302,10 +320,11 @@ to{top:calc(100vh - 120px);}
 
 Developed by Matteo Marangotto
 
-<a href="https://www.linkedin.com/in/matteo-mara/"
-   target="_blank"
-   rel="noopener noreferrer"
-   class="linkedin-link">
+<a
+href="https://www.linkedin.com/in/matteo-mara/"
+target="_blank"
+rel="noopener noreferrer"
+class="linkedin-link">
 
 <svg xmlns="http://www.w3.org/2000/svg"
 width="16"
@@ -314,12 +333,12 @@ fill="currentColor"
 viewBox="0 0 16 16">
 
 <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"/>
+
 </svg>
 
 </a>
 
 </div>
-
 </div>
 
 <script>
@@ -353,21 +372,17 @@ rect.left+'px';
 container.style.top=
 rect.top+'px';
 
-const clickX=
-e.clientX;
+const clickX=e.clientX;
+const clickY=e.clientY;
 
-const clickY=
-e.clientY;
-
-const w=
-window.innerWidth;
-
-const h=
-window.innerHeight;
+const w=window.innerWidth;
+const h=window.innerHeight;
 
 const maxDist=Math.hypot(
+
 Math.max(clickX,w-clickX),
 Math.max(clickY,h-clickY)
+
 );
 
 ripple.style.width=
